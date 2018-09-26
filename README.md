@@ -12,3 +12,6 @@ docker run -it -v $(pwd):/app/ -w /app jjhoncv/orbis-training-docker:1.0.0 npm i
 
 # node run
 docker run -it -v $(pwd):/app/ -p 3030:3030 -p 35729:35729 -w /app jjhoncv/orbis-training-docker:1.0.0 npm run start
+
+# node run change port
+docker run -it -v $(pwd):/app/ -p 1042:1042 -p 35729:35729 -w /app jjhoncv/orbis-training-docker:1.0.0 npm run start
