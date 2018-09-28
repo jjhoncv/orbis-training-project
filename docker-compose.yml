@@ -1,6 +1,7 @@
 version: '3'
 services:
   web:
+    constante_name: "node"
     working_dir: /app 
     ports:
     - "1042:1042"

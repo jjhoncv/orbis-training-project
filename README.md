@@ -1,24 +1,24 @@
 # Create image from name and version
-docker build -t jjhoncv/orbis-training-docker:0.1.0 .
+> docker build -t jjhoncv/orbis-training-docker:0.1.0 .
 # Docker Run
 
 ## Push image dockerhub
-docker push jjhoncv/orbis-training-docker
+> docker push jjhoncv/orbis-training-docker
 
 ## Create tag
-docker tag jjhoncv/orbis-training-dockwer jjhoncv/orbis-training-docker:0.2.0 
+> docker tag jjhoncv/orbis-training-dockwer jjhoncv/orbis-training-docker:0.2.0 
 
 ## Install dependencies node
-docker run -it -v $(pwd):/app/ -w /app jjhoncv/orbis-training-docker:1.0.0 npm install
+> docker run -it -v $(pwd):/app/ -w /app jjhoncv/orbis-training-docker:1.0.0 npm install
 
 ## node run
-docker run -it -v $(pwd):/app/ -p 3030:3030 -p 35729:35729 -w /app jjhoncv/orbis-training-docker:1.0.0 npm run start
+> docker run -it -v $(pwd):/app/ -p 3030:3030 -p 35729:35729 -w /app jjhoncv/orbis-training-docker:1.0.0 npm run start
 
 ## node run change port
-docker run -it -v $(pwd):/app/ -p 1042:1042 -p 35729:35729 -w /app jjhoncv/orbis-training-docker:1.0.0 npm run start
+> docker run -it -v $(pwd):/app/ -p 1042:1042 -p 35729:35729 -w /app jjhoncv/orbis-training-docker:1.0.0 npm run start
 
 ## node run release
-docker run -it -v $(pwd):/app/ -p 1042:1042 -p 35729:35729 -w /app jjhoncv/orbis-training-docker:1.0.0 npm run release
+> docker run -it -v $(pwd):/app/ -p 1042:1042 -p 35729:35729 -w /app jjhoncv/orbis-training-docker:1.0.0 npm run release
 
 ## Docker Compose
 version: '3'
@@ -32,3 +32,37 @@ services:
     - .:/app/
     image: jjhoncv/orbis-training-docker:1.0.0
     command: npm run start
+
+## Para conectar un container a una network
+1. ip
+2. name container
+3. name service
+
+## Para crear una Network
+Docker network create
+
+## Docker curl service up from docker-compose
+> docker run -it --network orbis-training-project_default jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://web:1042
+
+* Por defecto docker-compose crea una red "orbis-training-project_default", en la cual desde docker run te conectas a la red con --network, usas la imagen para este contenedor "jjhoncv/orbis-training-docker:1.0.0" y ejecutas el comando de "curl -X GET http://web:1042", donde "web" seria el nombre del servicio en docker-compose, donde al momento de crear el container asoció este nombre a su IP.
+
+Es por eso que al hacer "curl -X GET http://web:1042", hacer CURL directamente al container.
+
+#### Se tiene q conocer la ip del container:
+
+1. Obtener todos los container levantados:
+> docker ps
+
+2. Seleccionar el ID-Container seleccionar commando:
+> docker inspect ba34999350d5 
+
+3. Este comando nos dara la ip del container 
+
+> docker run -it --network orbis-training-project_default jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://172.19.0.2:1042
+
+#### Se añade host al container
+
+> docker run -it --add-host my-alias-ip:172.19.0.2 --network orbis-training-project_default jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://my-alias-ip:1042
+
+### Execute bash
+docker run -it -v $(pwd):/app -w /app jjhoncv/orbis-training-docker:1.0.0 sh resources/example.sh
