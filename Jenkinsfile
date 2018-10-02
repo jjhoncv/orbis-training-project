@@ -14,7 +14,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'make deploy'
+                sh 'make release'
+                sh 'make deploy.ghpages'
             }
         }
     }
