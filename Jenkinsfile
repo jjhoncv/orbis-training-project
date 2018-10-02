@@ -1,9 +1,19 @@
-pipeline {
+pipeline { 
     agent any 
     stages {
         stage('Build') { 
+            steps { 
+                sh 'make install' 
+            }
+        }
+        stage('Test'){
             steps {
-                sh 'echo hola jhonnatan'
+                sh 'make test'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'make deploy'
             }
         }
     }
