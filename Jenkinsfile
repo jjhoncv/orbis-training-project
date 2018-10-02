@@ -2,7 +2,8 @@ pipeline {
     agent any 
     stages {
         stage('Build') { 
-            steps { 
+            steps {
+                sh 'make create-workspace'
                 sh 'make install' 
             }
         }

@@ -6,7 +6,6 @@ create-workspace:
 	docker create -v /home/node --name workspace node:10.10.0-slim docker/node 
 	docker cp ./ workspace:/home/node 
 
-
 install:
 	#docker run -v $(PWD):/app/ -w /app jjhoncv/orbis-training-docker:1.0.0 npm install
 	docker run -it --rm --volumes-from workspace -w /home/node jjhoncv/orbis-training-docker:1.0.0 npm install
