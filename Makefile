@@ -1,3 +1,10 @@
+define create_workspace
+	if docker rm workspace ; then echo eliminando container workspace ...; fi
+	echo "creando container temporal de la imagen: workspace ..."
+	docker create -v /home/node --name workspace node:10.10.0-slim docker/node
+	docker cp ./ workspace:/home/node/
+endef
+
 image:
 	docker build -t jjhoncv/jenkins-deploy:0.0.1 docker/jenkins
 
@@ -5,7 +12,7 @@ create-workspace:
 	#docker rm workspace
 	#docker create -v /home/node --name workspace node:10.10.0-slim docker/node 
 	#docker cp ./ workspace:/home/node
-	chmod +x ./task.sh ./task.sh create_workspace
+	$(call create_workspace)
 
 install:
 	#docker run -v $(PWD):/app/ -w /app jjhoncv/orbis-training-docker:1.0.0 npm install
