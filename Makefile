@@ -1,8 +1,11 @@
 
 include makefiles/deploy-ghpages.mk
 
-image:
-	docker build -t jjhoncv/jenkins-deploy:0.0.1 docker/jenkins
+image-jenkins-jjhoncv:
+	docker build -t jjhoncv/jenkins-deploy:0.1.0 docker/jenkins
+
+build-jenkins:
+	docker run --rm -u root -p 8080:8080 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME":/home jjhoncv/jenkins-deploy:0.1.0
 
 create-workspace:
 	if docker rm workspace ; then echo eliminando container workspace ...; fi

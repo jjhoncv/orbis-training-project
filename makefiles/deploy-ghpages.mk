@@ -6,56 +6,68 @@ COLOR_GREEN = \e[0;32m
 DEPLOY_DIR = deploy
 BUILD_DIR = build
 GIT_BRANCH = gh-pages
+GIT_PERSONAL_TOKEN = 205ac32b631868ced9354511ed3ac0de41937ab7
+GIT_BRANCH_DIR = $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH)
 
 define mkdir_deploy_dir
-	@if [ ! -d "$(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH)" ]; then mkdir $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH); fi
+	@if [ ! -d "$(GIT_BRANCH_DIR)" ]; then mkdir $(GIT_BRANCH_DIR); fi
 endef
 
 define git_init
-	@cd $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH) && rm -rf $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH)/.git && git init
+	@cd $(GIT_BRANCH_DIR) && \
+	 rm -rf $(GIT_BRANCH_DIR)/.git && \
+	 git init
 endef
 
 define git_config
- 	$(eval GIT_USER_NAME := $(shell git config --list | grep 'user.name' | cut -d '=' -f 2))
-	$(eval GIT_USER_EMAIL := $(shell git config --list | grep 'user.email' | cut -d '=' -f 2))
-	@cd $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH) && git config user.email "$(GIT_USER_EMAIL)"
-	@cd $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH) && git config user.name "$(GIT_USER_NAME)"
+ 	$(eval GIT_USER_NAME := $(shell git log --pretty=format:"%an" | head -n 1))
+	$(eval GIT_USER_EMAIL := $(shell git log --pretty=format:"%ae" | head -n 1))
+	@cd $(GIT_BRANCH_DIR) && \
+	 git config user.email "$(GIT_USER_EMAIL)" && \
+	 git config user.name "$(GIT_USER_NAME)"
 endef
 
 define git_add_remote_repository
-	@cd $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH) && git remote add origin $1
+	$(eval GIT_REPOSITORY_REMOTE := $(shell echo $1 | sed 's%https://%https://$(GIT_PERSONAL_TOKEN)@%g'))
+	@cd $(GIT_BRANCH_DIR) && \
+	 git remote add origin $(GIT_REPOSITORY_REMOTE)
 endef
 
 define create_branch_gh_pages
-	@cd $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH) && git checkout -b $(GIT_BRANCH)
+	@cd $(GIT_BRANCH_DIR) && \
+	 git checkout -b $(GIT_BRANCH)
 endef
 
 define copy_files_to_deploy
-	@cp -r $(PWD)/$(DEPLOY_DIR)/$(BUILD_DIR)/* $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH)
+	@cp -r $(PWD)/$(DEPLOY_DIR)/$(BUILD_DIR)/* $(GIT_BRANCH_DIR)
 endef
 
 define git_add
-	@cd $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH) && git add * && git status
+	@cd $(GIT_BRANCH_DIR) && \
+	 git add * && \
+	 git status
 endef
 
 define create_commit
 	$(eval MESSAGE := $(shell git log --pretty=format:"%s" | head -n 1))
-	@cd $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH) && git commit -m "$(MESSAGE)"
+	@cd $(GIT_BRANCH_DIR) && \
+	 git commit -m "$(MESSAGE)"
 endef
 
 define git_push
-	@cd $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH) && git push origin $(GIT_BRANCH) --force
+	@cd $(GIT_BRANCH_DIR) && \
+	 git push origin $(GIT_BRANCH) --force
 endef
 
 define clean_workspace
-	@rm -rf $(PWD)/$(DEPLOY_DIR)/$(GIT_BRANCH)
+	@rm -rf $(GIT_BRANCH_DIR)
 endef
 
 define show_deploy_url
 	$(eval GIT_USER_NAME := $(shell git remote -v | grep origin | grep '(push)'| awk '{print $2}' | cut -d "/" -f 4))
 	$(eval GIT_REPOSITORY_NAME := $(shell git remote -v | grep origin | grep '(push)'| awk '{print $2}' | cut -d "/" -f 5 | sed "s/.git//g" | sed "s/(push)//g"))
 	@echo ""
-	@echo "Publicado en: $(COLOR_BLACK)http://$(GIT_USER_NAME).github.io/$(GIT_REPOSITORY_NAME)"
+	@echo "Publicado en: http://$(GIT_USER_NAME).github.io/$(GIT_REPOSITORY_NAME)"
 	@echo ""
 endef
 
