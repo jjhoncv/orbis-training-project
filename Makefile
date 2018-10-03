@@ -24,4 +24,5 @@ deploy:
 	echo deploy!!
 
 release:
-	docker run -it --rm --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm run release
+	docker run --rm -it --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm run release
+	docker cp workspace:/home/node/deploy ./
