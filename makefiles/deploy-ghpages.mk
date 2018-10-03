@@ -3,7 +3,7 @@
 COLOR_BLACK= ^[[0;30m
 COLOR_GREEN = \e[0;32m
 
-DEPLOY_DIR = demo-deploy
+DEPLOY_DIR = deploy
 BUILD_DIR = build
 GIT_BRANCH = gh-pages
 GIT_PERSONAL_TOKEN = 205ac32b631868ced9354511ed3ac0de41937ab7
