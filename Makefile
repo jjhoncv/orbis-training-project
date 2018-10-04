@@ -27,7 +27,7 @@ start:
 curl:
 	$(eval CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))
 	$(eval IP_CONTAINER := $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(CONTAINER)))
-	docker run -it --rm --network my-network jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://$(IP_CONTAINER):1042
+	docker run -it --rm --network my-network --tty=false jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://$(IP_CONTAINER):1042
 	docker rm $(CONTAINER) -f
 
 test:
