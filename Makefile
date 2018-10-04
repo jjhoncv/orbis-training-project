@@ -23,7 +23,7 @@ install:
 
 start:
 	$(eval ID_CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))	
-	@if [ ! -d "$(ID_CONTAINER)" ]; then docker rm $(ID_CONTAINER) -f; fi
+	@if [ ! -d $(ID_CONTAINER) ]; then docker rm $(ID_CONTAINER) -f; fi
 	docker run -it -d --rm --network my-network --name npm-start -p 1042:1042 --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm start
 
 curl:
