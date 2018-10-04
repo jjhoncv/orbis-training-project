@@ -7,5 +7,5 @@ services:
     - "35729:35729"
     image: jjhoncv/orbis-training-docker:1.0.0
     command: npm run start
-    volumes:
-      - "workspace:/home/node:."
+    volumes_from:
+      - "workspace"

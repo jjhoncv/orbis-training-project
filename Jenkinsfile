@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') { 
             steps {
-                sh 'make create-workspace'
+                sh 'make project-workspace'
                 sh 'make install' 
             }
         }
