@@ -22,13 +22,15 @@ install:
 	docker run -it --rm --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm install
 
 start:
+	$(eval ID_CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))	
+	@if [ ! -d "$(ID_CONTAINER)" ]; then docker rm $(ID_CONTAINER) -f; fi
 	docker run -it -d --rm --network my-network --name npm-start -p 1042:1042 --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm start
 
 curl:
-	$(eval CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))
-	$(eval IP_CONTAINER := $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(CONTAINER)))
+	$(eval ID_CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))
+	$(eval IP_CONTAINER := $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(ID_CONTAINER)))
 	docker run -it --rm --network my-network --tty=false jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://$(IP_CONTAINER):1042
-	docker rm $(CONTAINER) -f
+	docker rm $(ID_CONTAINER) -f
 
 test:
 	@make start
