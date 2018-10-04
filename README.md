@@ -65,4 +65,29 @@ Es por eso que al hacer "curl -X GET http://web:1042", hacer CURL directamente a
 > docker run -it --add-host my-alias-ip:172.19.0.2 --network orbis-training-project_default jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://my-alias-ip:1042
 
 ### Execute bash
-docker run -it -v $(pwd):/app -w /app jjhoncv/orbis-training-docker:1.0.0 sh resources/example.sh
+> docker run -it -v $(pwd):/app -w /app jjhoncv/orbis-training-docker:1.0.0 sh resources/example.sh
+
+## JENKINS
+
+### Create image jenkins-jjhoncv
+> docker build -t jjhoncv/jenkins-deploy:0.1.0 docker/jenkins
+
+### Run container jenkins
+> docker run --rm -u root -p 8080:8080 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME":/home jjhoncv/jenkins-deploy:0.1.0
+
+### Create workspace
+-v /home/node: Es el volumen que tendra nuestro container, donde estara nuestro proyecto 
+--name workspace: Es el nombre del volumen de nuestro container
+
+> if docker rm workspace ; then echo eliminando container workspace ...; fi
+	echo "creando container temporal"
+	docker create -v /home/node --name workspace node:10.10.0-slim docker/node
+
+Copiamos nuestro proyecto al volumen creado en su carpeta espeficica 
+> docker cp ./ workspace:/home/node/ 
+
+### Instalando dependencias
+--volumes-from workspace: Asociamos nuestro volumen "workspace" a nuestro container
+-w /home/node: Nos ubicamos en el folder de nuestro container que es nuestro proyecto.
+
+> docker run -it --rm --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm install

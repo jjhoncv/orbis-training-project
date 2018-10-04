@@ -13,19 +13,26 @@ create-workspace:
 	docker create -v /home/node --name workspace node:10.10.0-slim docker/node
 	docker cp ./ workspace:/home/node/
 
-start:
-	docker run -it --rm -p 1042:1042 --volumes-from workspace -w /home/node --tty=false  jjhoncv/orbis-training-docker:1.0.0 npm start
-	#docker run -it --rm -p 1042:1042 -v $(PWD):/app/ -w /app  jjhoncv/orbis-training-docker:1.0.0 npm start
-
+create-network:
+	$(eval NETWORK := $(shell docker network ls | grep my-network | awk '{print $$2}'))
+	@if [ ! -d "$(NETWORK)" ]; then docker network remove my-network; fi
+	docker network create my-network
+ 
 install:
-	#docker run -v $(PWD):/app/ -w /app jjhoncv/orbis-training-docker:1.0.0 npm install
 	docker run -it --rm --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm install
+
+start:
+	docker run -it -d --rm --network my-network --name npm-start -p 1042:1042 --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm start
+
+curl:
+	$(eval CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))
+	$(eval IP_CONTAINER := $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(CONTAINER)))
+	docker run -it --rm --network my-network jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://$(IP_CONTAINER):1042
+	docker rm $(CONTAINER) -f
 
 test:
 	@make start
-
-deploy:
-	echo deploy!!
+	@make curl
 
 release:
 	docker run --rm -it --volumes-from workspace -w /home/node --tty=false jjhoncv/orbis-training-docker:1.0.0 npm run release

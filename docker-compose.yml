@@ -1,12 +1,11 @@
-version: '3'
+version: '3.2'
 services:
   web:
-    constante_name: "node"
-    working_dir: /app 
+    working_dir: /home/node
     ports:
     - "1042:1042"
     - "35729:35729"
-    volumes:
-    - .:/app/
     image: jjhoncv/orbis-training-docker:1.0.0
     command: npm run start
+    volumes:
+      - "workspace:/home/node:."

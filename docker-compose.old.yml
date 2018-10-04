@@ -1,0 +1,11 @@
+version: '3'
+services:
+  web:
+    working_dir: /app 
+    ports:
+    - "1042:1042"
+    - "35729:35729"
+    volumes:
+    - .:/app/
+    image: jjhoncv/orbis-training-docker:1.0.0
+    command: npm run start
