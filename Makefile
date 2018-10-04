@@ -15,7 +15,7 @@ create-workspace:
 
 create-network:
 	$(eval NETWORK := $(shell docker network ls | grep my-network | awk '{print $$2}'))
-	@if [ ! -d "$(NETWORK)" ]; then docker network remove my-network; fi
+	@if [ ! -d $(NETWORK) ]; then docker network remove my-network; fi
 	docker network create my-network
  
 install:
@@ -30,7 +30,6 @@ curl:
 	$(eval ID_CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))
 	$(eval IP_CONTAINER := $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(ID_CONTAINER)))
 	docker run -it --rm --network my-network --tty=false jjhoncv/orbis-training-docker:1.0.0 curl -X GET http://$(IP_CONTAINER):1042
-	docker rm $(ID_CONTAINER) -f
 
 test:
 	@make start
