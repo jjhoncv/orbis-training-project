@@ -1,9 +1,8 @@
-
 include makefiles/deploy-ghpages.mk
 include makefiles/jenkins.mk
 
 NETWORK_NAME = my-network
-VOLUME = workspace
+CONTAINER_TMP = workspace
 WORKDIR = /home/node
 IMAGE = jjhoncv/orbis-training-docker:1.0.0
 
@@ -13,28 +12,26 @@ define create-network
 endef
 
 project-workspace:
-	if docker rm $(VOLUME) ; then echo eliminando container $(VOLUME) ...; fi
-	docker create -v $(WORKDIR) --name $(VOLUME) alpine:3.7
-	docker cp ./ $(VOLUME):$(WORKDIR)/
+	if docker rm $(CONTAINER_TMP) ; then echo eliminando container $(CONTAINER_TMP) ...; fi
+	docker create -v $(WORKDIR) --name $(CONTAINER_TMP) alpine:3.7
+	docker cp ./ $(CONTAINER_TMP):$(WORKDIR)/
 	$(call create-network)
 
 install:
-	docker run -it --rm --volumes-from $(VOLUME) -w $(WORKDIR) --tty=false $(IMAGE) npm install
+	docker run -it --rm --volumes-from $(CONTAINER_TMP) -w $(WORKDIR) --tty=false $(IMAGE) npm install
  
 start:
-	$(eval ID_CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))	
+	$(eval ID_CONTAINER := $(shell docker ps | grep NPM_START | awk '{print $$1}'))	
 	@if [ ! -d $(ID_CONTAINER) ]; then docker rm $(ID_CONTAINER) -f; fi
-	docker run -it -d --rm --network $(NETWORK_NAME) --name npm-start -p 1042:1042 --volumes-from $(VOLUME) -w $(WORKDIR) --tty=false $(IMAGE) npm start
+	docker run -it -d --rm --network $(NETWORK_NAME) --name NPM_START -p 1042:1042 --volumes-from $(CONTAINER_TMP) -w $(WORKDIR) --tty=false $(IMAGE) npm start
 
 curl:
-	$(eval ID_CONTAINER := $(shell docker ps | grep npm-start | awk '{print $$1}'))
-	$(eval IP_CONTAINER := $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(ID_CONTAINER)))
-	docker run -it --rm --network $(NETWORK_NAME) --tty=false $(IMAGE) curl -X GET http://$(IP_CONTAINER):1042
+	docker run -it --rm --network $(NETWORK_NAME) --tty=false $(IMAGE) curl -X GET http://NPM_START:1042
 
 test:
 	@make start
 	@make curl
 
 release:
-	docker run --rm -it --volumes-from $(VOLUME) -w $(WORKDIR) --tty=false $(IMAGE) npm run release
-	docker cp $(VOLUME):$(WORKDIR)/deploy ./
+	docker run --rm -it --volumes-from $(CONTAINER_TMP) -w $(WORKDIR) --tty=false $(IMAGE) npm run release
+	docker cp $(CONTAINER_TMP):$(WORKDIR)/deploy ./
