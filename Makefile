@@ -18,7 +18,7 @@ project-workspace:
 	$(call create-network)
 
 install:
-	docker run -it --rm --volumes-from $(CONTAINER_TMP) -w $(WORKDIR) --tty=false $(IMAGE) npm install
+	docker run -i --rm --volumes-from $(CONTAINER_TMP) -w $(WORKDIR) $(IMAGE) npm install
  
 start:
 	$(eval ID_CONTAINER := $(shell docker ps | grep NPM_START | awk '{print $$1}'))	
